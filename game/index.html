@@ -35,7 +35,7 @@
         var hojitas = new Image();
         var ninja = new Image();
         var audio = new Audio();
-        var paredes = new Array();
+        var suelito = new Image();
         var pared2 = null;
         var matriz = new Array();
         //y 28* x17
@@ -78,30 +78,36 @@
             ctx = cv.getContext("2d");
             player1 = new Cuadraro(maxX * 40, maxY * 40, 40, 40, 'blue');
             player2 = new Cuadraro(pla2X * 40, pla2Y * 40, 40, 40, 'red');
+            
             shiru.src = 'der.gif';
-            hojitas.src = 'hojas.png';
+            hojitas.src = 'pared.png';
             ninja.src = 'sakuraa.png';
             audio.src = 'sonido.mp3';
-            ostaculo();
+            suelito.src = 'suelo.png';
             paint();
 
 
         }
         function paint() {
             window.requestAnimationFrame(paint);
-            //ctx.fillStyle = 'white';
-            //ctx.fillRect(0, 0, 500, 500);
-            for (i in paredes) {
-                paredes[i].dibujar(ctx);
-            }
-
-            //ctx.fillStyle = "black";
-            //ctx.fillText("SCORE :" + acore, 30, 30);
             player1.dibujar(ctx);
-            //ctx.drawImage(shiru, player1.x, player1.y);
-            // player2.dibujar(ctx);
             ctx.drawImage(ninja, player2.x, player2.y);
-            ctx.drawImage(hojitas, pared.x, pared.y, 40, 40);
+            for (var i = 0; i < 28; i++) {
+                for (var j = 0; j < 17; j++) {
+                    var posx = i * 40;
+                    var posy = j * 40;
+                    if (matriz[i][j] == 1) {
+                        pared = new Cuadraro(posy, posx * 40, 40, 40, 'red');
+                        ctx.drawImage(hojitas, posy, posx,40,40);
+                    } else if (matriz[i][j] == 0) {
+                        pared = new Cuadraro(posy, posx * 40, 40, 40, 'red');
+                        ctx.drawImage(suelito, posy, posx,40,40);
+                    }
+                }
+            }
+            player1.dibujar(ctx);
+            ctx.drawImage(ninja, player2.x, player2.y);
+            
             if (pause) {
                 ctx.fillStyle = "rgba(0,0,0,0.5)";
                 ctx.fillRect(0, 0, 680, 1120);
@@ -112,23 +118,7 @@
 
         }
 
-        function ostaculo() {
-
-            for (var i = 0; i < 28; i++) {
-                for (var j = 0; j < 17; j++) {
-                    var posx = i * 40;
-                    var posy = j * 40;
-                    if (matriz[i][j] == 1) {
-                        pared2 = new Cuadraro(posy, posx, 40, 40, 'cyan');
-                        paredes.push(pared2);
-                    } else if (matriz[i][j] == 0) {
-                        pared = new Cuadraro(posy, posx, 40, 40, 'yellow');
-                        paredes.push(pared);
-                    }
-                }
-            }
-
-        }
+      
 
         window.addEventListener('load', start)
 
@@ -144,8 +134,7 @@
         function update() {
             //DERECHA
             if (direction == 'right') {
-                shiru.src = 'der.gif';
-                if (player1.se_tocan(paredes)) {
+                if (player1.se_tocan(pared)) {
                     player1.x = player1.x - 40;
                 } else {
                     player1.x += 40;
@@ -156,8 +145,7 @@
             }
             //IZQUIERDA
             if (direction == 'left') {
-                shiru.src = 'izq.gif';
-                if (player1.se_tocan(paredes)) {
+                if (player1.se_tocan(pared)) {
                     player1.x = player1.x + 40;
                 } else {
                     player1.x -= 40;
@@ -168,7 +156,7 @@
             }
             //ABAJO
             if (direction == 'down') {
-                if (player1.se_tocan(paredes)) {
+                if (player1.se_tocan(pared)) {
                     player1.y = player1.y - 40;
                 } else {
                     player1.y += 40;
@@ -179,7 +167,7 @@
             }
             //ARRIBA
             if (direction == 'up') {
-                if (player1.se_tocan(paredes)) {
+                if (player1.se_tocan(pared)) {
                     player1.y = player1.y + 40;
                 } else {
                     player1.y -= 40;
@@ -192,7 +180,7 @@
             if (player1.se_tocan(player2)) {
                 player2.x = generateRandomInteger(460);
                 player2.y = generateRandomInteger(460);
-                acore += 40;
+               
                 audio.play();
                 if (player2.se_tocan(pared)) {
                     player2.x = generateRandomInteger(460);
