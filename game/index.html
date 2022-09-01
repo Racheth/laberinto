@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <canvas id="canvas" width="680" height="1120"></canvas>
+    <canvas id="canvas" width="1700" height="840"></canvas>
 
 
     <script type="text/javascript">
@@ -23,103 +23,107 @@
         var cv = null;
         var ctx = null;
         var player1 = null;
-        var maxX = 1, maxY = 0;
-        var pla2X = 16, pla2Y = 26;
+        var maxX = 1, maxY = 1;
+        var pla2X = 32, pla2Y = 18;
         var direction = 'left';
         var player2 = null;
         var acore = 0;
         var pause = false;
         var pared = null;
-
-        var shiru = new Image();
+        var tam = 40;
+        var time = 0;
+        var tim = true;
+        var usuario = new Image();
         var hojitas = new Image();
-        var ninja = new Image();
+        var barco = new Image();
         var audio = new Audio();
+        var fondomp3 = new Audio();
         var suelito = new Image();
-        var pared2 = null;
+        var suelo = null;
+        var matriz2 = new Array();
+        var matriz3 = [];
+        var cont_s = 0, cont_m = 0;
         var matriz = new Array();
-        //y 28* x17
-
-        matriz = [
-            ["1", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "1", "1", "0", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "0", "0", "0", "1", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "0", "0", "1", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "1", "0", "0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "1", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "0", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "1", "0", "1", "1", "0", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "0", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "1", "0", "1", "1", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "0", "0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "1", "0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "1", "0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "1", "1", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-            ["1", "1", "0", "0", "1", "1", "0", "1", "0", "0", "0", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "1", "1", "0", "0", "0", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1"],
-            ["1", "0", "0", "0", "0", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "1"],
-            ["1", "1", "1", "1", "0", "0", "0", "0", "1", "1", "0", "1", "1", "0", "1", "1", "1"],
-            ["1", "1", "1", "1", "1", "1", "1", "0", "1", "0", "0", "0", "0", "0", "1", "1", "1"],
-            ["1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "1", "1", "1", "0", "1", "1", "1"],
-            ["1", "1", "1", "1", "1", "1", "1", "0", "0", "0", "0", "0", "1", "0", "1", "1", "1"],
-            ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "0", "0", "1"],
-            ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "0", "0", "0", "1", "0", "0"],
-            ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],];
-
-
-
-        function start() {
-
-            cv = document.getElementById("canvas");
-            ctx = cv.getContext("2d");
-            player1 = new Cuadraro(maxX * 40, maxY * 40, 40, 40, 'blue');
-            player2 = new Cuadraro(pla2X * 40, pla2Y * 40, 40, 40, 'red');
-            
-            shiru.src = 'der.gif';
-            hojitas.src = 'pared.png';
-            ninja.src = 'sakuraa.png';
-            audio.src = 'sonido.mp3';
-            suelito.src = 'suelo.png';
-            paint();
-
+        //y 21* x30
+        function mapa() {
+            matriz = [
+                ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],//4
+                ["0", "1", "0", "1", "1", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "1", "1", "0"],//2
+                ["0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "0", "0", "0", "0", "1", "0", "0", "0", "0", "0", "1", "0", "1", "0", "0", "1", "0"],//3
+                ["0", "1", "0", "1", "0", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1", "0", "0", "1", "1", "1", "1", "0", "1", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "0"],//5
+                ["0", "1", "1", "1", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "1", "1", "0", "0", "0", "0", "1", "0", "1", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "1", "0"],//6
+                ["0", "0", "0", "0", "0", "1", "0", "1", "1", "1", "0", "1", "1", "1", "0", "1", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0"],//1
+                ["0", "1", "1", "1", "1", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "0", "0", "0", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "1", "0", "0"],//7
+                ["0", "1", "0", "0", "0", "0", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "1", "1", "1", "0", "1", "1", "1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "0"],//8
+                ["0", "1", "1", "1", "1", "1", "0", "0", "0", "1", "0", "1", "0", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "1", "0", "1", "0", "0", "0", "0", "1", "1", "1", "0"],//9
+                ["0", "0", "0", "0", "0", "1", "1", "1", "1", "1", "0", "1", "0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "0", "1", "1", "1", "1", "0", "0", "0", "1", "0"],//11
+                ["0", "1", "1", "1", "0", "0", "0", "0", "1", "0", "1", "1", "0", "1", "1", "0", "0", "1", "0", "1", "0", "0", "0", "0", "1", "1", "0", "0", "0", "0", "1", "1", "0", "1", "0"],//10
+                ["0", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "0", "0", "0", "1", "1", "0", "0", "0", "1", "1", "1", "1", "0", "0", "0", "1", "1", "1", "1", "1", "0", "1", "1", "0"],//12
+                ["0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "1", "1", "0", "1", "0", "1", "1", "1", "1", "0", "0", "0", "1", "0", "1", "1", "1", "0", "0", "0", "1", "0", "0", "0", "0"],//13
+                ["0", "1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "1", "1", "0", "1", "0", "0", "0", "1", "0", "1", "1", "1", "1", "0"],//14
+                ["0", "1", "0", "1", "0", "0", "0", "0", "1", "1", "0", "0", "0", "1", "0", "1", "1", "1", "1", "0", "1", "0", "1", "0", "1", "1", "1", "1", "0", "1", "1", "0", "1", "0", "0"],//15
+                ["0", "1", "1", "1", "1", "1", "1", "0", "0", "0", "1", "1", "1", "1", "0", "1", "0", "0", "1", "0", "1", "0", "1", "0", "1", "0", "0", "0", "0", "0", "1", "0", "1", "1", "0"],//16
+                ["0", "0", "0", "0", "0", "0", "1", "0", "1", "1", "1", "0", "0", "0", "1", "1", "0", "0", "1", "1", "1", "0", "1", "1", "1", "1", "0", "1", "1", "1", "0", "1", "0", "1", "0"],//17
+                ["0", "1", "1", "1", "1", "1", "1", "0", "1", "0", "1", "1", "1", "1", "1", "0", "0", "1", "0", "0", "1", "0", "0", "0", "0", "1", "1", "1", "0", "1", "1", "0", "0", "1", "0"],//18
+                ["0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "0", "1", "0", "1", "0", "1", "1", "1", "0", "1", "0", "1", "1", "1", "0", "0", "0", "0", "1", "0", "0", "0", "1", "1", "0"],//19
+                ["0", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "1", "1", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0"],//20
+                ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],//21
+            ];//22
 
         }
-        function paint() {
-            window.requestAnimationFrame(paint);
-            player1.dibujar(ctx);
-            ctx.drawImage(ninja, player2.x, player2.y);
-            for (var i = 0; i < 28; i++) {
-                for (var j = 0; j < 17; j++) {
-                    var posx = i * 40;
-                    var posy = j * 40;
-                    if (matriz[i][j] == 1) {
-                        pared = new Cuadraro(posy, posx * 40, 40, 40, 'red');
-                        ctx.drawImage(hojitas, posy, posx,40,40);
-                    } else if (matriz[i][j] == 0) {
-                        pared = new Cuadraro(posy, posx * 40, 40, 40, 'red');
-                        ctx.drawImage(suelito, posy, posx,40,40);
+
+        function start() {
+            cv = document.getElementById("canvas");
+            ctx = cv.getContext("2d");
+
+            player1 = new Cuadraro(maxX * tam, maxY * tam, tam, tam);
+            player2 = new Cuadraro(pla2X * tam, pla2Y * tam, 80, 80);
+            usuario.src = 'luffydere.png';
+            hojitas.src = 'pared.png';
+            barco.src = 'sunny2.png';
+            audio.src = 'sonido.mp3';
+            fondomp3.src = 'pista4.mp3';
+            suelito.src = 'suelo.jpg';
+            paint();
+        }
+
+        function llenadito() {
+            for (var i = 0; i < 21; i++) {
+                for (var j = 0; j < 35; j++) {
+                    if (matriz[i][j] == 0) {
+                        pared = new Cuadraro(j * tam, i * tam, tam, tam);
+                        ctx.drawImage(hojitas, pared.x, pared.y);
+                        matriz2.push(pared);
+                    } else {
+                        suelo = new Cuadraro(j * tam, i * tam, tam, tam);
+                        ctx.drawImage(suelito, suelo.x, suelo.y);
+                        matriz3.push(suelo);
                     }
                 }
             }
-            player1.dibujar(ctx);
-            ctx.drawImage(ninja, player2.x, player2.y);
-            
+        }
+
+        function paint() {
+            mapa();
+            llenadito();
+            window.requestAnimationFrame(paint);
+            ctx.fillStyle = "black";
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText('TIME:' + cont_m + ":" + cont_s, 30, 20);
+            ctx.fillText('Canciones de fondo:', 1400, 600);
+            ctx.drawImage(usuario, player1.x, player1.y);
+            ctx.drawImage(barco, player2.x, player2.y);
+
             if (pause) {
                 ctx.fillStyle = "rgba(0,0,0,0.5)";
                 ctx.fillRect(0, 0, 680, 1120);
                 ctx.fillStyle = "#fff";
                 ctx.font = "20px Courier";
                 ctx.fillText("Pause", 340, 500);
+                fondomp3.play();
             }
 
         }
-
-      
-
         window.addEventListener('load', start)
 
         window.requestAnimationFrame = (function () {
@@ -130,69 +134,66 @@
                     window.setTimeout(callback, 17);
                 };
         }());
-
-        function update() {
-            //DERECHA
-            if (direction == 'right') {
-                if (player1.se_tocan(pared)) {
-                    player1.x = player1.x - 40;
-                } else {
-                    player1.x += 40;
-                    if (player1.x >= 680) {
-                        player1.x = 0;
+        function revision() {
+            for (i in matriz2) {
+                if (player1.se_tocan(matriz2[i])) {
+                    //DERECHA
+                    if (direction == 'right') {
+                        usuario.src = 'luffydere.png';
+                        player1.x -= 40;
                     }
+                    //IZQUIERDA
+                    if (direction == 'left') {
+                        usuario.src = 'luffy.png';
+                        player1.x += 40;
+                    }
+                    //ABAJO
+                    if (direction == 'down') {
+
+                        player1.y -= 40;
+
+                        //ARRIBA
+                    }
+                    if (direction == 'up') {
+
+                        player1.y += 40;
+
+                    }
+
                 }
+            }
+        }
+        function update() {
+            fondomp3.play();
+            if (direction == 'right') {
+                player1.x += 40;
+                usuario.src = 'luffydere.png';
             }
             //IZQUIERDA
             if (direction == 'left') {
-                if (player1.se_tocan(pared)) {
-                    player1.x = player1.x + 40;
-                } else {
-                    player1.x -= 40;
-                    if (player1.x < 0) {
-                        player1.x = 640;
-                    }
-                }
+                player1.x -= 40;
+                usuario.src = 'luffy.png';
             }
             //ABAJO
             if (direction == 'down') {
-                if (player1.se_tocan(pared)) {
-                    player1.y = player1.y - 40;
-                } else {
-                    player1.y += 40;
-                    if (player1.y >= 1120) {
-                        player1.y = 0;
-                    }
-                }
+                player1.y += 40;
+                //ARRIBA
             }
-            //ARRIBA
             if (direction == 'up') {
-                if (player1.se_tocan(pared)) {
-                    player1.y = player1.y + 40;
-                } else {
-                    player1.y -= 40;
-                    if (player1.y < 0) {
-                        player1.y = 1080;
-                    }
-                }
+                player1.y -= 40;
             }
-
             if (player1.se_tocan(player2)) {
-                player2.x = generateRandomInteger(460);
-                player2.y = generateRandomInteger(460);
-               
                 audio.play();
-                if (player2.se_tocan(pared)) {
-                    player2.x = generateRandomInteger(460);
-                    player2.y = generateRandomInteger(460);
-                }
-
             }
-
+            revision();
         }
-
-        document.addEventListener("keydown", function (e) {
+        document.addEventListener("keyup", function (e) {
             console.log(e);
+            if(tim){
+                timer()
+                tim=false;
+            }
+            
             //ARRIBA
             if (e.which == 87) {
                 direction = 'up'
@@ -213,6 +214,16 @@
                 direction = 'right'
                 update()
             }
+            
+            //audios de fondo
+            if (e.which == 89) {
+                fondomp3.src = 'pista1.mp3';
+            }
+            if (e.which == 85) {
+                fondomp3.src = 'pista2.mp3';
+            }
+  
+
             //PAUSA
             if (e.which == 32) {
                 if (!pause) {
@@ -220,12 +231,21 @@
                 } else {
                     pause = false;
                 }
-
             }
 
         });
-
-
+        function timer() {
+            setInterval(function () {
+                if (cont_s == 60) {
+                    cont_s = 0;
+                    cont_m++;
+                    if (cont_m == 60) {
+                        cont_m = 0;
+                    }
+                }
+                cont_s++;
+            }, 1000);
+        }
         function Cuadraro(x, y, w, h, c) {
             this.x = x;
             this.y = y;
