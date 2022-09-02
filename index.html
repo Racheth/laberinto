@@ -28,11 +28,13 @@
         var direction = 'left';
         var player2 = null;
         var acore = 0;
+        var pausa2 = true;
+        var cronometro = 0;
         var pause = false;
         var pared = null;
         var tam = 40;
-        var win=false;
-        var move=true;
+        var win = false;
+        var move = true;
         var time = 0;
         var tim = true;
         var usuario = new Image();
@@ -85,11 +87,12 @@
             audio.src = 'win.mp3';
             fondomp3.src = 'pista4.mp3';
             suelito.src = 'suelo.jpg';
-            fondomp3.play();
+          
             paint();
         }
 
         function llenadito() {
+            
             for (var i = 0; i < 21; i++) {
                 for (var j = 0; j < 35; j++) {
                     if (matriz[i][j] == 0) {
@@ -101,6 +104,7 @@
                         ctx.drawImage(suelito, suelo.x, suelo.y);
                         matriz3.push(suelo);
                     }
+
                 }
             }
         }
@@ -120,6 +124,8 @@
             ctx.fillText('S = Abajo', 1400, 200);
             ctx.fillText('D = Derecha', 1400, 240);
             ctx.fillText('ENTER = Reiniciar', 1400, 280);
+            ctx.fillText('SPACE = Pausa', 1400, 320);
+
             ctx.drawImage(usuario, player1.x, player1.y);
             ctx.drawImage(barco, player2.x, player2.y);
 
@@ -128,21 +134,23 @@
                 ctx.fillRect(0, 0, 1400, 840);
                 ctx.fillStyle = "#fff";
                 ctx.font = "20px Courier";
-                ctx.fillText("Pause", 680, 420);
+                ctx.fillText("Pause", 600, 420);
                 fondomp3.pause();
             }
-            if(win){
+            if (win) {
                 ctx.fillStyle = "rgba(0,0,0,0.5)";
                 ctx.fillRect(0, 0, 1400, 840);
                 ctx.fillStyle = "#fff";
                 ctx.font = "20px Courier";
-                ctx.fillText("Ganaste", 650, 380);
+                ctx.fillText("GANASTE", 620, 380);
                 ctx.font = "22px Courier";
-                ctx.fillText("Presiona Intro Reiniciar", 650, 420);
+                ctx.fillText("Presiona Intro Reiniciar", 500, 420);
+                ctx.font = "22px Courier";
+                ctx.fillText("Tiempo :"+cont_m +" Min "+cont_s+" Seg", 500, 460);
             }
 
         }
-        window.addEventListener('load', start)
+        window.addEventListener('load', start, false)
 
         window.requestAnimationFrame = (function () {
             return window.requestAnimationFrame ||
@@ -182,7 +190,7 @@
             }
         }
         function update() {
-            
+
             if (direction == 'right') {
                 player1.x += 40;
                 usuario.src = 'luffydere.png';
@@ -204,77 +212,82 @@
         }
         document.addEventListener("keyup", function (e) {
             //inavilitar teclas
-            if(move){
+            
+            if (move) {
+                fondomp3.play();
                 console.log(e);
                 //llamar tiempo
-            if(tim){
-                timer()
-                tim=false;
-            }
-            
-            //ARRIBA
-            if (e.which == 87) {
-                direction = 'up'
-                update()
-            }
-            //ABAJO
-            if (e.which == 83) {
-                direction = 'down'
-                update()
-            }
-            //IZQUIERDA
-            if (e.which == 65) {
-                direction = 'left'
-                update()
-            }
-            //DERECHA
-            if (e.which == 68) {
-                direction = 'right'
-                update()
-            }
-            
-            //audios de fondo
-            if (e.which == 89) {
-                fondomp3.src = 'pista1.mp3';
-                fondomp3.play();
-            }
-            if (e.which == 85) {
-                fondomp3.src = 'pista2.mp3';
-                fondomp3.play();
-            }
-  
-            //meta 
-            if (player1.se_tocan(player2)) {
-                fondomp3.pause();
-                audio.play();
-                move=false;
-                win=true;
-            }
-            }
+                if (tim) {
+                    timer()
+                    tim = false;
+                }
 
-                //PAUSA
-                if (e.which == 32 ) {
-                if (!pause) {
-                    move=false;
-                    pause = true;
-                } else {
+                //ARRIBA
+                if (e.which == 87) {
+                    direction = 'up'
+                    update()
+                }
+                //ABAJO
+                if (e.which == 83) {
+                    direction = 'down'
+                    update()
+                }
+                //IZQUIERDA
+                if (e.which == 65) {
+                    direction = 'left'
+                    update()
+                }
+                //DERECHA
+                if (e.which == 68) {
+                    direction = 'right'
+                    update()
+                }
+
+                //audios de fondo
+                if (e.which == 89) {
+                    fondomp3.src = 'pista1.mp3';
                     fondomp3.play();
-                    move=true;
-                    pause = false;
+                }
+                if (e.which == 85) {
+                    fondomp3.src = 'pista2.mp3';
+                    fondomp3.play();
+                }
+
+                //meta 
+                if (player1.se_tocan(player2)) {
+                    fondomp3.pause();
+                    window.clearInterval(cronometro);
+                    audio.play();
+                    move = false;
+                    win = true;
+                    pausa2 = false;
                 }
             }
 
-            if(e.which == 13 ){
+            //PAUSA
+            if (pausa2) {
+                if (e.which == 32) {
+                    if (!pause) {
+                        window.clearInterval(cronometro);
+                        move = false;
+                        pause = true;
+                    } else {
+                        fondomp3.play();
+                        move = true;
+                        pause = false;
+                        timer();
+                    }
+                }
+            }
 
-                audio.play();
-                move=true;
-                start();
-                
+            if (e.which == 13 && pause != true ) {
+                location.reload();
+
             }
 
         });
         function timer() {
-            setInterval(function () {
+            cronometro = setInterval(function () {
                 if (cont_s == 60) {
                     cont_s = 0;
                     cont_m++;
@@ -283,6 +296,7 @@
                     }
                 }
                 cont_s++;
+                
             }, 1000);
         }
         function Cuadraro(x, y, w, h, c) {
