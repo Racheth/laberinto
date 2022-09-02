@@ -28,9 +28,13 @@
         var direction = 'left';
         var player2 = null;
         var acore = 0;
+        var pausa2 = true;
+        var cronometro = 0;
         var pause = false;
         var pared = null;
         var tam = 40;
+        var win = false;
+        var move = true;
         var time = 0;
         var tim = true;
         var usuario = new Image();
@@ -75,19 +79,21 @@
         function start() {
             cv = document.getElementById("canvas");
             ctx = cv.getContext("2d");
-
             player1 = new Cuadraro(maxX * tam, maxY * tam, tam, tam);
             player2 = new Cuadraro(pla2X * tam, pla2Y * tam, 80, 80);
             usuario.src = 'luffydere.png';
             hojitas.src = 'pared.png';
             barco.src = 'sunny2.png';
-            audio.src = 'sonido.mp3';
+            audio.src = 'win.mp3';
             fondomp3.src = 'pista4.mp3';
             suelito.src = 'suelo.jpg';
+            fondomp3.play();
+          
             paint();
         }
 
         function llenadito() {
+            
             for (var i = 0; i < 21; i++) {
                 for (var j = 0; j < 35; j++) {
                     if (matriz[i][j] == 0) {
@@ -99,6 +105,7 @@
                         ctx.drawImage(suelito, suelo.x, suelo.y);
                         matriz3.push(suelo);
                     }
+
                 }
             }
         }
@@ -111,20 +118,39 @@
             ctx.font = 'bold 24px Arial';
             ctx.fillText('TIME:' + cont_m + ":" + cont_s, 30, 20);
             ctx.fillText('Canciones de fondo:', 1400, 600);
+            ctx.fillText('Y = Binks Sake (Famele)', 1400, 650);
+            ctx.fillText('U = Binks Sake (Dueto)', 1400, 700);
+            ctx.fillText('W = Arriba', 1400, 120);
+            ctx.fillText('A = Izquierda', 1400, 160);
+            ctx.fillText('S = Abajo', 1400, 200);
+            ctx.fillText('D = Derecha', 1400, 240);
+            ctx.fillText('ENTER = Reiniciar', 1400, 280);
+            ctx.fillText('SPACE = Pausa', 1400, 320);
             ctx.drawImage(usuario, player1.x, player1.y);
             ctx.drawImage(barco, player2.x, player2.y);
 
             if (pause) {
                 ctx.fillStyle = "rgba(0,0,0,0.5)";
-                ctx.fillRect(0, 0, 680, 1120);
+                ctx.fillRect(0, 0, 1400, 840);
                 ctx.fillStyle = "#fff";
                 ctx.font = "20px Courier";
-                ctx.fillText("Pause", 340, 500);
-                fondomp3.play();
+                ctx.fillText("Pause", 600, 420);
+                fondomp3.pause();
+            }
+            if (win) {
+                ctx.fillStyle = "rgba(0,0,0,0.5)";
+                ctx.fillRect(0, 0, 1400, 840);
+                ctx.fillStyle = "#fff";
+                ctx.font = "20px Courier";
+                ctx.fillText("GANASTE", 620, 380);
+                ctx.font = "22px Courier";
+                ctx.fillText("Presiona Intro Reiniciar", 500, 420);
+                ctx.font = "22px Courier";
+                ctx.fillText("Tiempo :"+cont_m +" Min "+cont_s+" Seg", 500, 460);
             }
 
         }
-        window.addEventListener('load', start)
+        window.addEventListener('load', start, false)
 
         window.requestAnimationFrame = (function () {
             return window.requestAnimationFrame ||
@@ -164,7 +190,7 @@
             }
         }
         function update() {
-            fondomp3.play();
+
             if (direction == 'right') {
                 player1.x += 40;
                 usuario.src = 'luffydere.png';
@@ -182,60 +208,86 @@
             if (direction == 'up') {
                 player1.y -= 40;
             }
-            if (player1.se_tocan(player2)) {
-                audio.play();
-            }
             revision();
         }
         document.addEventListener("keyup", function (e) {
-            console.log(e);
-            if(tim){
-                timer()
-                tim=false;
-            }
+            //inavilitar teclas
             
-            //ARRIBA
-            if (e.which == 87) {
-                direction = 'up'
-                update()
+            if (move) {
+                fondomp3.play();
+                console.log(e);
+                //llamar tiempo
+                if (tim) {
+                    timer()
+                    tim = false;
+                }
+
+                //ARRIBA
+                if (e.which == 87) {
+                    direction = 'up'
+                    update()
+                }
+                //ABAJO
+                if (e.which == 83) {
+                    direction = 'down'
+                    update()
+                }
+                //IZQUIERDA
+                if (e.which == 65) {
+                    direction = 'left'
+                    update()
+                }
+                //DERECHA
+                if (e.which == 68) {
+                    direction = 'right'
+                    update()
+                }
+
+                //audios de fondo
+                if (e.which == 89) {
+                    fondomp3.src = 'pista1.mp3';
+                    fondomp3.play();
+                }
+                if (e.which == 85) {
+                    fondomp3.src = 'pista2.mp3';
+                    fondomp3.play();
+                }
+
+                //meta 
+                if (player1.se_tocan(player2)) {
+                    fondomp3.pause();
+                    window.clearInterval(cronometro);
+                    audio.play();
+                    move = false;
+                    win = true;
+                    pausa2 = false;
+                }
             }
-            //ABAJO
-            if (e.which == 83) {
-                direction = 'down'
-                update()
-            }
-            //IZQUIERDA
-            if (e.which == 65) {
-                direction = 'left'
-                update()
-            }
-            //DERECHA
-            if (e.which == 68) {
-                direction = 'right'
-                update()
-            }
-            
-            //audios de fondo
-            if (e.which == 89) {
-                fondomp3.src = 'pista1.mp3';
-            }
-            if (e.which == 85) {
-                fondomp3.src = 'pista2.mp3';
-            }
-  
 
             //PAUSA
-            if (e.which == 32) {
-                if (!pause) {
-                    pause = true;
-                } else {
-                    pause = false;
+            if (pausa2) {
+                if (e.which == 32) {
+                    if (!pause) {
+                        window.clearInterval(cronometro);
+                        move = false;
+                        pause = true;
+                    } else {
+                        fondomp3.play();
+                        move = true;
+                        pause = false;
+                        timer();
+                    }
                 }
+            }
+
+            if (e.which == 13 && pause != true ) {
+                location.reload();
+
             }
 
         });
         function timer() {
-            setInterval(function () {
+            cronometro = setInterval(function () {
                 if (cont_s == 60) {
                     cont_s = 0;
                     cont_m++;
@@ -244,6 +296,7 @@
                     }
                 }
                 cont_s++;
+                
             }, 1000);
         }
         function Cuadraro(x, y, w, h, c) {
