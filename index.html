@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <canvas id="canvas" width="1400" height="840"></canvas>
+    <canvas id="canvas" width="1700" height="840"></canvas>
 
 
     <script type="text/javascript">
@@ -23,7 +23,7 @@
         var cv = null;
         var ctx = null;
         var player1 = null;
-        var maxX = 32, maxY = 16;
+        var maxX = 1, maxY = 1;
         var pla2X = 32, pla2Y = 18;
         var direction = 'left';
         var player2 = null;
@@ -31,14 +31,20 @@
         var pause = false;
         var pared = null;
         var tam = 40;
+        var win=false;
+        var move=true;
+        var time = 0;
+        var tim = true;
         var usuario = new Image();
         var hojitas = new Image();
         var barco = new Image();
         var audio = new Audio();
+        var fondomp3 = new Audio();
         var suelito = new Image();
         var suelo = null;
         var matriz2 = new Array();
         var matriz3 = [];
+        var cont_s = 0, cont_m = 0;
         var matriz = new Array();
         //y 21* x30
         function mapa() {
@@ -71,29 +77,27 @@
         function start() {
             cv = document.getElementById("canvas");
             ctx = cv.getContext("2d");
-
             player1 = new Cuadraro(maxX * tam, maxY * tam, tam, tam);
             player2 = new Cuadraro(pla2X * tam, pla2Y * tam, 80, 80);
-            usuario.src = 'luffy.png';
+            usuario.src = 'luffydere.png';
             hojitas.src = 'pared.png';
             barco.src = 'sunny2.png';
-            audio.src = 'sonido.mp3';
+            audio.src = 'win.mp3';
+            fondomp3.src = 'pista4.mp3';
             suelito.src = 'suelo.jpg';
-
-
+            fondomp3.play();
             paint();
-
         }
 
         function llenadito() {
             for (var i = 0; i < 21; i++) {
                 for (var j = 0; j < 35; j++) {
                     if (matriz[i][j] == 0) {
-                        pared = new Cuadraro(j * tam, i * tam, tam, tam, 'red');
+                        pared = new Cuadraro(j * tam, i * tam, tam, tam);
                         ctx.drawImage(hojitas, pared.x, pared.y);
                         matriz2.push(pared);
                     } else {
-                        suelo = new Cuadraro(j * tam, i * tam, tam, tam, 'red');
+                        suelo = new Cuadraro(j * tam, i * tam, tam, tam);
                         ctx.drawImage(suelito, suelo.x, suelo.y);
                         matriz3.push(suelo);
                     }
@@ -101,24 +105,44 @@
             }
         }
 
-
         function paint() {
             mapa();
             llenadito();
             window.requestAnimationFrame(paint);
+            ctx.fillStyle = "black";
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText('TIME:' + cont_m + ":" + cont_s, 30, 20);
+            ctx.fillText('Canciones de fondo:', 1400, 600);
+            ctx.fillText('Y = Binks Sake (Famele)', 1400, 650);
+            ctx.fillText('U = Binks Sake (Dueto)', 1400, 700);
+            ctx.fillText('W = Arriba', 1400, 120);
+            ctx.fillText('A = Izquierda', 1400, 160);
+            ctx.fillText('S = Abajo', 1400, 200);
+            ctx.fillText('D = Derecha', 1400, 240);
+            ctx.fillText('ENTER = Reiniciar', 1400, 280);
             ctx.drawImage(usuario, player1.x, player1.y);
             ctx.drawImage(barco, player2.x, player2.y);
 
             if (pause) {
                 ctx.fillStyle = "rgba(0,0,0,0.5)";
-                ctx.fillRect(0, 0, 680, 1120);
+                ctx.fillRect(0, 0, 1400, 840);
                 ctx.fillStyle = "#fff";
                 ctx.font = "20px Courier";
-                ctx.fillText("Pause", 340, 500);
+                ctx.fillText("Pause", 680, 420);
+                fondomp3.pause();
+            }
+            if(win){
+                ctx.fillStyle = "rgba(0,0,0,0.5)";
+                ctx.fillRect(0, 0, 1400, 840);
+                ctx.fillStyle = "#fff";
+                ctx.font = "20px Courier";
+                ctx.fillText("Ganaste", 650, 380);
+                ctx.font = "22px Courier";
+                ctx.fillText("Presiona Intro Reiniciar", 650, 420);
             }
 
         }
-        window.addEventListener('load', start, false)
+        window.addEventListener('load', start)
 
         window.requestAnimationFrame = (function () {
             return window.requestAnimationFrame ||
@@ -133,12 +157,12 @@
                 if (player1.se_tocan(matriz2[i])) {
                     //DERECHA
                     if (direction == 'right') {
-
+                        usuario.src = 'luffydere.png';
                         player1.x -= 40;
                     }
                     //IZQUIERDA
                     if (direction == 'left') {
-
+                        usuario.src = 'luffy.png';
                         player1.x += 40;
                     }
                     //ABAJO
@@ -158,12 +182,15 @@
             }
         }
         function update() {
+            
             if (direction == 'right') {
                 player1.x += 40;
+                usuario.src = 'luffydere.png';
             }
             //IZQUIERDA
             if (direction == 'left') {
                 player1.x -= 40;
+                usuario.src = 'luffy.png';
             }
             //ABAJO
             if (direction == 'down') {
@@ -173,45 +200,91 @@
             if (direction == 'up') {
                 player1.y -= 40;
             }
-            if (player1.se_tocan(player2)) {
-                audio.play();
-            }
             revision();
         }
-        document.addEventListener("keydown", function (e) {
-            console.log(e);
+        document.addEventListener("keyup", function (e) {
+            //inavilitar teclas
+            if(move){
+                console.log(e);
+                //llamar tiempo
+            if(tim){
+                timer()
+                tim=false;
+            }
+            
             //ARRIBA
             if (e.which == 87) {
                 direction = 'up'
-
+                update()
             }
             //ABAJO
             if (e.which == 83) {
                 direction = 'down'
-
+                update()
             }
             //IZQUIERDA
             if (e.which == 65) {
                 direction = 'left'
-
+                update()
             }
             //DERECHA
             if (e.which == 68) {
                 direction = 'right'
-
+                update()
             }
-            //PAUSA
-            if (e.which == 32) {
+            
+            //audios de fondo
+            if (e.which == 89) {
+                fondomp3.src = 'pista1.mp3';
+                fondomp3.play();
+            }
+            if (e.which == 85) {
+                fondomp3.src = 'pista2.mp3';
+                fondomp3.play();
+            }
+  
+            //meta 
+            if (player1.se_tocan(player2)) {
+                fondomp3.pause();
+                audio.play();
+                move=false;
+                win=true;
+            }
+            }
+
+                //PAUSA
+                if (e.which == 32 ) {
                 if (!pause) {
+                    move=false;
                     pause = true;
                 } else {
+                    fondomp3.play();
+                    move=true;
                     pause = false;
                 }
             }
-            update()
+
+            if(e.which == 13 ){
+
+                audio.play();
+                move=true;
+                start();
+                
+            }
+
         });
-
-
+        function timer() {
+            setInterval(function () {
+                if (cont_s == 60) {
+                    cont_s = 0;
+                    cont_m++;
+                    if (cont_m == 60) {
+                        cont_m = 0;
+                    }
+                }
+                cont_s++;
+            }, 1000);
+        }
         function Cuadraro(x, y, w, h, c) {
             this.x = x;
             this.y = y;
