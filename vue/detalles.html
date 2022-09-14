@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style2.css">
+    <title>detalles</title>
+</head>
+
+<body>
+
+    <div id="contenedor">
+
+        <div class="foto">
+            <img v-bind:src="`https://image.tmdb.org/t/p/w500/${vr.poster_path}` " >
+        </div>
+
+        <div class="descripcion">
+            <h1 class="titulo"></h1>{{vr.title}}</h1>
+            <h2 class="descripcion">descripcion</h2>
+            <h3 >{{vr.overview}}</h3>
+        </div>
+        <div>
+            <button href="peliculas.html">regresar</button>
+        </div>
+
+    </div>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript">
+
+        const { createApp } = Vue
+
+
+        const app = createApp({
+            data() {
+                return {
+                    // users: null,
+                    //mail: '',
+                    //password: ''
+                    vr: '',
+                    peli_id: '',
+
+                }
+            },
+            methods: {
+                getDetails() {
+
+                    const aux = this;
+                    var data = new FormData();
+                    var config = {
+                        method: 'get',
+                        url: 'https://api.themoviedb.org/3/movie/'+this.peli_id,
+                        headers: {
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMmM0MzgwNjZmOGUyMjk3OTc4ZjUxMThjZDMxNzFmOCIsInN1YiI6IjYzMjAzYzNhYjRhNTQzMDA5MTM4MjlhNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ord-0-Prn8IcVn3Vnl0F1cyRJ0mOUcFGu_AUINrhWtM'
+                        },
+
+                        data: data
+                    };
+                    axios(config)
+                        .then(function (response) {
+                            alert("entraste");
+                            aux.vr = response.data;
+                           
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+            },
+            mounted() {
+                var peli_id = localStorage.getItem('peli_id');
+                this.peli_id = peli_id;
+                this.getDetails();
+            }
+
+        }).mount('#contenedor')
+
+    </script>
+
+
+
+</body>
+
+</html>
